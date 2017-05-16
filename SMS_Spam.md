@@ -13,7 +13,7 @@ spam <- read.csv("spam.csv", stringsAsFactors = FALSE )
 View(spam)
 ```
 
-We notice that columns X, X.1 and X.2 contain parts of text that are too big to be stored in single column of V2 in a csv file. We shall store the entire text in a single v2 column.
+We notice that columns X, X.1 and X.2 contain parts of text that are too big to be stored in single column of V2 in a csv file. We shall store the entire text in a single V2 column.
 
 ``` r
 spam$v2 <- paste(spam$v2,spam$X,spam$X.1,spam$X.2)
@@ -30,7 +30,7 @@ levels(spam$type)
 
     ## [1] "ham"  "spam"
 
-We have 2 levels for type 'ham' for real messages and 'spam' for spam messages.
+We have 2 levels for type, 'ham' for real messages and 'spam' for spam messages.
 
 Creating and Cleaning Corpus
 ============================
@@ -65,7 +65,7 @@ corp <- tm_map(corp, removeNumbers)
 corp <- tm_map(corp, stripWhitespace)
 ```
 
-Now
+We can see  the transformed text below.
 
 ``` r
 corp[[1]]$content
@@ -100,6 +100,8 @@ inspect(dtm)
     ##   3016    0   0    0    0   0    0    2   0    0   0
     ##   5105    0   0    0    1   0    0    0   0    0   0
 
+The document term matrix consists of 5572 documents and 7640 terms which make them.
+
 Checking terms which occur most.
 
 ``` r
@@ -129,16 +131,7 @@ This can also be visualized from following the graph.
 
 ``` r
 library(ggplot2)
-```
 
-    ## 
-    ## Attaching package: 'ggplot2'
-
-    ## The following object is masked from 'package:NLP':
-    ## 
-    ##     annotate
-
-``` r
 ggplot(data = subset(freq.df,freq > 250),aes(x = word,y = freq)) + geom_bar(stat = "identity")
 ```
 
@@ -249,7 +242,7 @@ ggplot(data = freq.df[freq > 12,],aes(x = word,y = freq)) + theme(axis.text.x = 
 
 ![](SMS_Spam_files/figure-markdown_github/unnamed-chunk-19-1.png)
 
-Our Document Term Matrix consists of large amount of terms which occur very few times. Thus we shall remove these terms as they dont provide significance to analysis.
+Our Document Term Matrix consists of large amount of terms which occur very few times. Thus we shall remove these terms as they dont provide any relevant information for analysis.
 
 ``` r
 dtm <- removeSparseTerms(dtm,0.995)
@@ -275,9 +268,9 @@ inspect(dtm)
     ##   3016    0   0    0    0   0    0    2   0    0   0
     ##   3350    1   2    1    0   1    1    0   1    0   0
 
-Now our document term matrix consists only the significant 331 terms.
+Now our document term matrix consists of only the significant 331 terms.
 
-To further carry out our analysis we will convert document term matrix in to dataframe and add the type column to it.
+To further carry out our analysis we will convert document term matrix in to a dataframe and add the type column to it.
 
 ``` r
 dtm <- as.data.frame(as.matrix(dtm))
@@ -640,32 +633,27 @@ summary(LRmodel)
     ## 
     ## Number of Fisher Scoring iterations: 24
 
+We can see the importantance of all the words from above summary.
 Lets see how our logistic regression model performs.
 
 ``` r
+library(Metrics)
 LRpredict <- predict(LRmodel, test, type = "response")
 
 LRpred <- ifelse(LRpredict>0.5,"spam","ham")
-library(Metrics)
 ce(test$type,LRpred)
 ```
 
     ## [1] 0.04246411
 
-We get classification error of 0.03 thus giving us accuracy of 97%. Although the accuracy is really good we will try using other models.
+We get classification error of 0.04 thus giving us accuracy of 96%. Although the accuracy is really good we will try using other models.
 
 ``` r
 library(rpart)
 library(rpart.plot)
 library(RColorBrewer)
 library(rattle)
-```
 
-    ## Rattle: A free graphical interface for data mining with R.
-    ## Version 4.1.0 Copyright (c) 2006-2015 Togaware Pty Ltd.
-    ## Type 'rattle()' to shake, rattle, and roll your data.
-
-``` r
 DTmodel <- rpart(type ~ ., data = train, minbucket = 20)
 
 fancyRpartPlot(DTmodel,cex = 0.6)
@@ -682,26 +670,12 @@ ce(test$type,DTpredict)
 
     ## [1] 0.06220096
 
-The accuracy has decreased to 93% but we were able to visualize which words play an important role in determining if a message is spam or not.
+The accuracy has decreased to 94% but we were able to visualize which words play the most important role in determining if a message is spam or not.
 
 Lets try using a random forest model.
 
 ``` r
 library(randomForest)
-```
-
-    ## randomForest 4.6-12
-
-    ## Type rfNews() to see new features/changes/bug fixes.
-
-    ## 
-    ## Attaching package: 'randomForest'
-
-    ## The following object is masked from 'package:ggplot2':
-    ## 
-    ##     margin
-
-``` r
 RFmodel <- randomForest(type ~ ., data = train,importance = TRUE)
 varImpPlot(RFmodel)
 ```
@@ -719,7 +693,7 @@ ce(test$type,RFpredict)
 
     ## [1] 0.03050239
 
-The accuracy has increased to 9% which is the best so far.
+The accuracy has increased to 97% which is the best so far.
 
 Lets see how a Support Vector Machine model performs on this data.
 
@@ -742,7 +716,7 @@ SVMmodel
     ## 
     ## Number of Support Vectors:  1243
 
-The svm function selects reasonable defaults for cost and gamma. We can further optimize their values to increase its performance but this is avoided since it would take a lot of time for the machine I am working on.
+The svm function selects reasonable defaults for cost and gamma. We can further optimize their values to increase its performance but this is avoided since it would take a lot of processing time for the machine I am working on.
 
 ``` r
 SVMpredict <- predict(SVMmodel, test)
@@ -757,5 +731,5 @@ Closing Remarks
 ===============
 
 1.  SVM model or Random Forest model can be used to filter spam as they both perform equally good.
-2.  If processing time is a constraint, logistic regression or SVM model can be used instead of random forest model
+2.  If processing time is a constraint, logistic regression or SVM model can be used instead of random forest model.
 3.  KNN model was not evaluated as our dataset is of high dimension.
