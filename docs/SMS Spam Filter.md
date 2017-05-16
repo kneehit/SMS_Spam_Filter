@@ -175,12 +175,18 @@ library(wordcloud)
 
     ## Loading required package: RColorBrewer
 
+
+We can also visualize most frequent terms through a wordcloud.
+
+Word cloud of words with frequency more than 200.
 ``` r
 wordcloud(freq.df$word,freq.df$freq, min.freq=200,colors = brewer.pal(8,"Spectral"))
 ```
 
 ![](SMS_Spam_files/figure-markdown_github/unnamed-chunk-14-1.png)
 
+
+Word cloud of 50 most frequent words.
 ``` r
  wordcloud(freq.df$word,freq.df$freq, max.words=50,colors = brewer.pal(8,"Dark2"))
 ```
