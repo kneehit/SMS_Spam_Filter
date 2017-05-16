@@ -1,12 +1,13 @@
 SMS Spam Filter
 ================
-Nihit R. Save
-9th May 2017
+**Author:** Nihit R. Save <br />
+**Date:**   9th May 2017 <br />
+
 
 Data Exploration
 ================
 
-Loading Dataset from work directory.
+Loading the dataset from work directory.
 
 ``` r
 spam <- read.csv("spam.csv", stringsAsFactors = FALSE )
